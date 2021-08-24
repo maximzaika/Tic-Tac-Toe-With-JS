@@ -1,0 +1,15 @@
+{
+  "name": "hh",
+  "version": "1.0.0",
+  "description": "tic tac toe online multiplayer game",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Maxim Zaika",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.3",
+    "socket.io": "^1.7.1"
+  }
+}

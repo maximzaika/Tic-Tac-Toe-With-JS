@@ -1,0 +1,291 @@
+function reply_click(clicked_id) {
+	if (clicked_id === '0,0') {
+		//alert(clicked_id)
+		return [0,0];
+	} if (clicked_id === '0,1') {
+		//alert(clicked_id)
+		return [0,1];	
+	} else if (clicked_id === '0,2') {
+		//alert(clicked_id)
+		return [0,2];	
+	} else if (clicked_id === '1,0') {
+		//alert(clicked_id)
+		return [1,0];	
+	} else if (clicked_id === '1,1') {
+		//alert(clicked_id)
+		return [1,1];	
+	} else if (clicked_id === '1,2') {
+		//alert(clicked_id)
+		return [1,2];	
+	} else if (clicked_id === '2,0') {
+		//alert(clicked_id)
+		return [2,0];	
+	} else if (clicked_id === '2,1') {
+		//alert(clicked_id)
+		return [2,1];	
+	} else {
+		//alert(clicked_id)
+		return [2,2];	
+	}
+}
+
+function horizontal(matrix, x) {
+	let val = matrix[x][0];
+	if (val === 'X' || val === 'O') {
+		for (i=1; i < matrix.length; i++) {
+			let another_val = matrix[x][i];
+			if (another_val !== val) {
+				break; // not matching					
+			} else {
+				val = another_val;
+				if (i === 2) {
+		
+					return 'h_pass';					
+				}					
+			}
+		}
+	}
+}
+
+function vertical(matrix,y) {
+		
+	let val = matrix[0][y];
+	if (val === 'X' || val === 'O') {
+		
+		for (i=1; i < matrix.length; i++) {
+			let another_val = matrix[i][y];
+			if (another_val !== val) {
+				
+				break; // not matching			
+			} else {
+				val = another_val;
+				if (i === 2) {
+					
+					return 'v_pass';
+				}			
+			}
+		}	
+	}
+}
+
+function diagonal(matrix,x,y) {
+	if ((x,y) === (0,0) || (x,y) === (1,1) || (x,y) === (2,2)) {
+		
+		let x = 0;
+		let val = matrix[x][0];
+		
+		if (val === 'X' || val === 'O') {
+			for (i=1; i < matrix.length; i++) {
+				let another_val = matrix[i][i]
+				if (another_val !== val) {
+					
+					break; //not matching					
+				} else {
+					val = another_val;
+					if (i === 2) {
+						
+						return 'd_pass';				
+					}					
+				}
+			}			
+		}
+		
+	}
+	
+	if ((x,y) === (2,0) || (x,y) === (1,1) || (x,y) === (0,2)) {
+		let x = 2;
+		let val = matrix[x][0];
+		
+		if (val === 'X' || val === 'O') {
+			for (i=1; i < matrix.length; i++) {
+				x -= 1
+				let another_val = matrix[x][i]
+				if (another_val !== val) {
+					
+					break; //not matching				
+				} else {
+					val = another_val;
+					if (i === 2) {
+						
+						return 'd_pass';			
+					}					
+				}
+			}			
+		}
+	}
+}
+
+function reset_session(change) {
+	change = document.getElementById('0,0');
+	change.firstChild.data = ' ';
+	change = document.getElementById('0,1');
+	change.firstChild.data = ' ';
+	change = document.getElementById('0,2');
+	change.firstChild.data = ' ';
+	change = document.getElementById('1,0');
+	change.firstChild.data = ' ';
+	change = document.getElementById('1,1');
+	change.firstChild.data = ' ';
+	change = document.getElementById('1,2');
+	change.firstChild.data = ' ';
+	change = document.getElementById('2,0');
+	change.firstChild.data = ' ';
+	change = document.getElementById('2,1');
+	change.firstChild.data = ' ';
+	change = document.getElementById('2,2');
+	change.firstChild.data = ' ';
+}
+
+// create matrix
+matrix = []
+for (var i=0; i<3; i++) {
+	matrix[i] = new Array(3);
+}
+
+let p = 0; //turn iterator
+
+// socket io
+$(function () {
+        var socket = io();
+		  var P1 = 'X', P2 = 'O';
+		  
+		  document.getElementById("0,0").disabled = true;
+		  document.getElementById("0,1").disabled = true;
+		  document.getElementById("0,2").disabled = true;
+		  document.getElementById("1,0").disabled = true;
+		  document.getElementById("1,1").disabled = true;
+		  document.getElementById("1,2").disabled = true;
+		  document.getElementById("2,0").disabled = true;
+		  document.getElementById("2,1").disabled = true;
+		  document.getElementById("2,2").disabled = true;
+		  
+		  var player = function(type) {
+		    this.type = type;
+		    this.currentTurn = true;
+		  }
+		  
+		  player.prototype.setCurrentTurn = function(turn) {
+		    this.currentTurn = turn;
+		    console.log('TURN>>>', turn)
+		    if (turn) 
+		      $('#turn').text('you');
+		    else 
+		      $('#turn').text('waiting');		  
+		    
+		  }
+		  
+		  player.prototype.getPlayerType = function () {
+		    return this.type;		  
+		  }
+		  
+		  player.prototype.getCurrentTurn = function() {
+          return this.currentTurn		  
+		  }
+		  
+		  $('#create').on('click', function() {
+		    socket.emit('createGame', 'player1');
+		    player = new player(P1);
+		    
+		    console.log(player)
+		    document.getElementById("0,0").disabled = false;
+		    document.getElementById("0,1").disabled = false;
+		    document.getElementById("0,2").disabled = false;
+		    document.getElementById("1,0").disabled = false;
+		    document.getElementById("1,1").disabled = false;
+		    document.getElementById("1,2").disabled = false;
+		    document.getElementById("2,0").disabled = false;
+		    document.getElementById("2,1").disabled = false;
+		    document.getElementById("2,2").disabled = false;		  
+		  });
+        
+        //Join an existing game
+        $('#join').on('click', function(){
+        	 socket.emit('joinGame', 'player2');
+          player = new player(P2);
+          console.log(player)
+          document.getElementById("0,0").disabled = false;
+		    document.getElementById("0,1").disabled = false;
+		    document.getElementById("0,2").disabled = false;
+		    document.getElementById("1,0").disabled = false;
+		    document.getElementById("1,1").disabled = false;
+		    document.getElementById("1,2").disabled = false;
+		    document.getElementById("2,0").disabled = false;
+		    document.getElementById("2,1").disabled = false;
+		    document.getElementById("2,2").disabled = false;
+        });
+        
+        socket.on('player1', function(data) {
+        	 consle.log('test player1');
+          player.setCurrentTurn(true);        
+        });        
+        
+        socket.on('player2', function(data) {
+        	 consle.log('test player2')
+          player.setCurrentTurn(false);        
+        });
+                
+        
+        $('.tile').on('click', function(){
+          socket.emit('tile clicked', $(this).attr('id'));
+          return false;
+        });
+        
+        socket.on('tile clicked', function(msg){
+          //document.getElementById(msg).innerHTML = "X";
+          //console.log(player.getsCurrentTurn())
+          //console.log(player.setCurrentTurn())
+          
+          if (player.getCurrentTurn()) {
+          	 alert('Its not your turn!');    
+          } else {
+            //main(msg, player.type);
+            //player.setCurrentTurn()
+            //var opponentType = player.getPlayerType() == P1 ? P2 : P1;
+				     
+            main(msg, player.type);    
+            player.setCurrentTurn(false);       
+            console.log('test')
+          }
+        });
+});
+
+
+
+function main(clicked_val, player) {
+	p+=1; //counts the turns
+	let change = document.getElementById(clicked_val); //gets the values of x and y
+	let [x,y] = reply_click(clicked_val); //assigns the values of x and y
+	
+	change.firstChild.data = player;	
+	matrix[x][y] = player;
+	
+	//assigns when to input X or O
+	/*if ((p === 1 || p === 3 || p === 5 || p === 7 || p === 9) && (player = 'X')) {
+		change.firstChild.data = player;	
+		matrix[x][y] = player;
+	}
+	
+	if ((p === 2 || p === 4 || p === 6 || p === 8 || p === 10) && (player = 'O')) {
+		change.firstChild.data = player;
+		matrix[x][y] = player;
+	}*/
+	
+	// checks for the matching values
+	let horiz = horizontal(matrix,x); // X 
+	let vert = vertical(matrix,y); // Y 
+	let diag = diagonal(matrix,x,y); // X,Y
+	
+	//when horizontal, vertical, or diagonal matches all 3 values, game ends and resets
+	if ((horiz === 'h_pass') || (vert === 'v_pass') || (diag === 'd_pass')) {
+		reset_session(change);
+		p = 0;
+		alert('player ### wins, session has been reset');
+	}
+	
+	//when all the tiles are filled up, game goes into draw and resets
+	if ((p === 9) && (horiz !== 'h_pass') && (vert !== 'v_pass') && (diag !== 'd_pass')) {
+		p = 0
+		reset_session(change)
+		alert('draw')	
+	}
+}

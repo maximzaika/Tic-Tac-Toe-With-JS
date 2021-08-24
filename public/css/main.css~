@@ -1,0 +1,14 @@
+.tile{
+	width: 80px;
+	height: 80px;
+	font-size: 30px;
+	font-family: Helvetica;
+}
+
+.center{
+	margin: 0 auto;
+}
+
+.h1 {
+	margin:0 auto
+}
