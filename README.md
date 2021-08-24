@@ -10,6 +10,10 @@ room id.
 
 HTML, CSS, jQuery, JavaScript, Socket.IO, ExpressJS
 
+# Preview
+
+https://youtu.be/pqYQrussyiM
+
 # Description
 
 1. Launch the website from two different windows (supports 1 session at the time only)
